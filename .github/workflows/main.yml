@@ -5,7 +5,6 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,16 +29,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Check build environment
         run: |
           echo "Java version:"
           java -version
           echo "Maven version:"
-          mvn -version      
-      - name: Run REST Assured tests
-        run: mvn test
-      - name: Upload Allure report
+          mvn -version
+      - name: Execute regression test suite
+        run: mvn clean test -Pqa,smoke-test
+
+      - name: Archive logs
+        if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: allure-report
-          path: target/allure-results
+          name: logs
+          path: logs        
+
+      - name: Archive test reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: reports
