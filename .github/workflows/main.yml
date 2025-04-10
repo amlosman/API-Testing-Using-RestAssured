@@ -1,0 +1,35 @@
+name: Selenium Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chrome, firefox]  # Parallel execution
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-
+
+      - name: Run Selenium Tests
+        run: mvn test -Dbrowser=${{ matrix.browser }}
+
+      - name: Upload Allure Report
+        if: always()  # Upload even if tests fail
+        uses: actions/upload-artifact@v2
+        with:
+          name: allure-report-${{ matrix.browser }}
+          path: target/allure-results
