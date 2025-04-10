@@ -37,7 +37,7 @@ jobs:
           echo "Maven version:"
           mvn -version
       - name: Execute regression test suite
-        run: mvn clean test -Pqa,smoke-test
+        run: mvn clean test
 
       - name: Archive logs
         if: always()
